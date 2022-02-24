@@ -7,18 +7,16 @@
 import Foundation
 
 /// Abstracts the `DataUploadWorker`, so we can have no-op uploader in tests.
-internal protocol DataUploadWorkerType {
-#if DD_SDK_COMPILED_FOR_TESTING
+public protocol DataUploadWorkerType {
     func flushSynchronously()
     func cancelSynchronously()
-#endif
 }
 
-internal class DataUploadWorker: DataUploadWorkerType {
+public class DataUploadWorker: DataUploadWorkerType {
     /// Queue to execute uploads.
-    private let queue: DispatchQueue
+    public let queue: DispatchQueue
     /// File reader providing data to upload.
-    private let fileReader: Reader
+    public let fileReader: Reader
     /// Data uploader sending data to server.
     private let dataUploader: DataUploaderType
     /// Variable system conditions determining if upload should be performed.
@@ -109,10 +107,9 @@ internal class DataUploadWorker: DataUploadWorkerType {
         queue.asyncAfter(deadline: .now() + delay, execute: work)
     }
 
-#if DD_SDK_COMPILED_FOR_TESTING
     /// Sends all unsent data synchronously.
     /// - It performs arbitrary upload (without checking upload condition and without re-transmitting failed uploads).
-    func flushSynchronously() {
+    public func flushSynchronously() {
         queue.sync {
             while let nextBatch = self.fileReader.readNextBatch() {
                 _ = self.dataUploader.upload(data: nextBatch.data)
@@ -124,7 +121,7 @@ internal class DataUploadWorker: DataUploadWorkerType {
     /// Cancels scheduled uploads and stops scheduling next ones.
     /// - It does not affect the upload that has already begun.
     /// - It blocks the caller thread if called in the middle of upload execution.
-    func cancelSynchronously() {
+    public func cancelSynchronously() {
         queue.sync {
             // This cancellation must be performed on the `queue` to ensure that it is not called
             // in the middle of a `DispatchWorkItem` execution - otherwise, as the pending block would be
@@ -133,7 +130,6 @@ internal class DataUploadWorker: DataUploadWorkerType {
             self.uploadWork = nil
         }
     }
-#endif
 }
 
 extension DataUploadConditions.Blocker: CustomStringConvertible {

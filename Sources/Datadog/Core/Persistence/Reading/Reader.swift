@@ -6,20 +6,20 @@
 
 import Foundation
 
-internal struct Batch {
-    let data: Data
+public struct Batch {
+    public let data: Data
     /// File from which `data` was read.
     let file: ReadableFile
 }
 
 /// A type, reading batched data.
-internal protocol Reader {
+public protocol Reader {
     func readNextBatch() -> Batch?
     func markBatchAsRead(_ batch: Batch)
 }
 
 /// Reader performing reads synchronously on a given queue.
-internal protocol SyncReader: Reader {
+public protocol SyncReader: Reader {
     /// Queue used for synchronous reads.
     var queue: DispatchQueue { get }
 }

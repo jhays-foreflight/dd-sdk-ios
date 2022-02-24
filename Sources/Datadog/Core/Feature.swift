@@ -34,12 +34,12 @@ internal struct FeaturesCommonDependencies {
     let appStateListener: AppStateListening
 }
 
-internal struct FeatureStorage {
+public struct FeatureStorage {
     /// Writes data to files. This `Writer` takes current value of the `TrackingConsent` into consideration
     /// to decided if the data should be written to authorized or unauthorized folder.
     let writer: AsyncWriter
     /// Reads data from files in authorized folder.
-    let reader: SyncReader
+    public let reader: SyncReader
 
     /// An arbitrary `Writer` which always writes data to authorized folder.
     /// Should be only used by components which implement their own consideration of the `TrackingConsent` value
@@ -144,7 +144,6 @@ internal struct FeatureStorage {
         dataOrchestrator.deleteAllData()
     }
 
-#if DD_SDK_COMPILED_FOR_TESTING
     /// Flushes all async write operations and tears down the storage stack.
     /// - It completes all async writes by synchronously saving data to authorized files.
     /// - It cancels the storage by preventing all future write operations and marking all authorised files as "ready for upload".
@@ -156,12 +155,11 @@ internal struct FeatureStorage {
         arbitraryAuthorizedWriter.flushAndCancelSynchronously()
         (dataOrchestrator as? DataOrchestrator)?.markAllFilesAsReadable()
     }
-#endif
 }
 
-internal struct FeatureUpload {
+public struct FeatureUpload {
     /// Uploads data to server.
-    let uploader: DataUploadWorkerType
+    public let uploader: DataUploadWorkerType
 
     init(
         featureName: String,
@@ -202,7 +200,6 @@ internal struct FeatureUpload {
         self.uploader = uploader
     }
 
-#if DD_SDK_COMPILED_FOR_TESTING
     /// Flushes all authorised data and tears down the upload stack.
     /// - It completes all pending asynchronous work in upload worker and cancels its next schedules.
     /// - It flushes all data stored in authorized files by performing their arbitrary upload (without retrying).
@@ -213,5 +210,4 @@ internal struct FeatureUpload {
         uploader.cancelSynchronously()
         uploader.flushSynchronously()
     }
-#endif
 }
